@@ -6,6 +6,7 @@
 #include "MessageQueue.hpp"
 #include "Producer.hpp"
 #include "Consumer.hpp"
+#include "Utils.hpp"
 
 const int NO_OF_PRODUCERS = 5;
 const int NO_OF_CONSUMERS = 5;
@@ -34,6 +35,13 @@ int main() {
     {
         if (producerThread.joinable())
             producerThread.join();
+    }
+
+    for (int i = 0; i < NO_OF_CONSUMERS; ++i)
+    {
+        while (!queue->addItem("Exit")) {
+            randomDelay(100, 1000);
+        }
     }
 
     for (auto& consumerThread : consumerThreads)

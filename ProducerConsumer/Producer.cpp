@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Producer.hpp"
+#include "Utils.hpp"
 
 Producer::Producer(int id, std::shared_ptr<MessageQueue> queue)
     : id_(id), queue_(queue)
@@ -9,5 +10,14 @@ Producer::Producer(int id, std::shared_ptr<MessageQueue> queue)
 
 void Producer::operator()()
 {
-    std::cout << "Adding this work";
+    std::cout << "Producer " << id_ << ": Starting to produce " << NO_OF_WORKS << " items." << std::endl;
+
+    for (int i =0; i < NO_OF_WORKS; ++i)
+    {
+        randomDelay(100, 1000);
+        std::cout << "Producer " << id_ << ": Adding item " << i << "." << std::endl;
+        while (not queue_->addItem("Work " + std::to_string(i))) {
+            randomDelay(100, 1000);
+        }
+    }
 }

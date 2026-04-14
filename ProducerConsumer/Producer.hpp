@@ -2,6 +2,8 @@
 
 #include "MessageQueue.hpp"
 
+const int NO_OF_WORKS = 10;
+
 class Producer
 {
     std::shared_ptr<MessageQueue> queue_;
