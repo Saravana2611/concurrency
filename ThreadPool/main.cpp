@@ -40,22 +40,10 @@ int main()
             producerThread.join();
     }
 
-#if defined(USE_ONLY_MUTEX)
     for (int i = 0; i < NO_OF_CONSUMERS; ++i)
     {
-        while (!queue->addItem("Exit"))
-        {
-            randomDelay(100, 1000);
-        }
+        queue->waitAndAddItem(std::move(nullptr));
     }
-#elif defined(USE_COND_VAR)
-    for (int i = 0; i < NO_OF_CONSUMERS; ++i)
-    {
-        queue->waitAndAddItem("Exit");
-    }
-#else
-#error "Define either USE_ONLY_MUTEX or USE_COND_VAR to select the implementation."
-#endif
 
     for (auto &consumerThread : consumerThreads)
     {

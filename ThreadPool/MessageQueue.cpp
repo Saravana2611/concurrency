@@ -8,18 +8,7 @@ MessageQueue::MessageQueue() : size_(0)
 {
 }
 
-bool MessageQueue::addItem(const std::string &item)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (queue_.size() < size_)
-    {
-        queue_.push(item);
-        return true;
-    }
-    return false;
-}
-
-void MessageQueue::waitAndAddItem(const std::string &item)
+void MessageQueue::waitAndAddItem(const std::function<void()> &item)
 {
     std::unique_lock<std::mutex> lock(mutex_);
     not_full_.wait(lock, [this]
@@ -30,21 +19,9 @@ void MessageQueue::waitAndAddItem(const std::string &item)
     not_empty_.notify_one();
 }
 
-std::optional<std::string> MessageQueue::removeItem()
+std::function<void()> MessageQueue::waitAndRemoveItem()
 {
-    std::optional<std::string> item;
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (not queue_.empty())
-    {
-        item = queue_.front();
-        queue_.pop();
-    }
-    return item;
-}
-
-std::string MessageQueue::waitAndRemoveItem()
-{
-    std::string item;
+    std::function<void()> item;
     std::unique_lock<std::mutex> lock(mutex_);
     not_empty_.wait(lock, [this]
                     { return not queue_.empty(); });
