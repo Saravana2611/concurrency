@@ -10,6 +10,7 @@
 class MessageQueue
 {
     const int size_;
+    bool stop_ = false;
     std::mutex mutex_;
     std::condition_variable not_empty_;
     std::condition_variable not_full_;
@@ -20,4 +21,5 @@ public:
     MessageQueue(const int size);
     void waitAndAddItem(const std::function<void()> &item);
     std::function<void()> waitAndRemoveItem();
+    void shutdown();
 };

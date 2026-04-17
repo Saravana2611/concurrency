@@ -2,14 +2,14 @@
 
 #include "MessageQueue.hpp"
 
-class Consumer
+class Worker
 {
 private:
     int id_;
     std::shared_ptr<MessageQueue> queue_;
 
 public:
-    Consumer(int id, std::shared_ptr<MessageQueue> queue);
-    ~Consumer();
+    Worker(int id, std::shared_ptr<MessageQueue> queue);
+    ~Worker();
     void operator()();
 };
