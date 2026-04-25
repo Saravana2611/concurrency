@@ -4,11 +4,7 @@ MessageQueue::MessageQueue(const int size) : size_(size), stop_(false)
 {
 }
 
-MessageQueue::MessageQueue() : size_(0), stop_(false)
-{
-}
-
-void MessageQueue::waitAndAddItem(const std::function<void()> &item)
+void MessageQueue::waitAndAddItem(std::function<void()> item)
 {
     std::unique_lock<std::mutex> lock(mutex_);
     not_full_.wait(lock, [this]
@@ -17,6 +13,7 @@ void MessageQueue::waitAndAddItem(const std::function<void()> &item)
     {
         return;
     }
+    noOfItems_++;
     queue_.push(item);
     lock.unlock();
     not_empty_.notify_one();
@@ -34,9 +31,15 @@ std::function<void()> MessageQueue::waitAndRemoveItem()
     }
     item = queue_.front();
     queue_.pop();
+    noOfItems_--;
     lock.unlock();
     not_full_.notify_one();
     return item;
+}
+
+int MessageQueue::getNoOfItems()
+{
+    return noOfItems_.load();
 }
 
 void MessageQueue::shutdown()
@@ -46,4 +49,10 @@ void MessageQueue::shutdown()
     lock.unlock();
     not_empty_.notify_all();
     not_full_.notify_all();
+}
+
+bool MessageQueue::isStopped()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    return stop_;
 }

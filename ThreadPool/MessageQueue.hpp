@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <mutex>
 #include <condition_variable>
 #include <string>
@@ -15,11 +16,13 @@ class MessageQueue
     std::condition_variable not_empty_;
     std::condition_variable not_full_;
     std::queue<std::function<void()>> queue_;
+    std::atomic<int> noOfItems_ = 0;
 
 public:
-    MessageQueue();
     MessageQueue(const int size);
-    void waitAndAddItem(const std::function<void()> &item);
+    void waitAndAddItem(std::function<void()> item);
     std::function<void()> waitAndRemoveItem();
     void shutdown();
+    int getNoOfItems();
+    bool isStopped();
 };
